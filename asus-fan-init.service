@@ -1,0 +1,12 @@
+[Unit]
+Description=Ultimate fan speed mode asus
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 2
+ExecStart=/bin/sh -c 'for f in /sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable; do echo 0 > "$f"; done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
