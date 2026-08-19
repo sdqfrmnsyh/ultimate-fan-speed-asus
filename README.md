@@ -104,4 +104,4 @@ Kontrol kipas secara manual dapat menyebabkan suhu meningkat jika kurva atau kec
 
 ## Lisensi
 
-Belum ada lisensi yang ditentukan untuk proyek ini.
+Malas🧢
