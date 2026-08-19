@@ -1,76 +1,83 @@
-# Ultimate Fan Speed ASUS
+# ASUS Ultimate Fan Speed
 
-Systemd service sederhana untuk mengatur mode kontrol kipas laptop ASUS saat proses boot selesai.
+A simple systemd service to set the ASUS laptop fan control mode when the boot process is complete.
 
-Service ini menjalankan perintah berikut:
+This service executes the following command:
 
-- Menunggu selama 2 detik setelah service dimulai.
-- Menemukan semua file `pwm1_enable` di `/sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/`.
-- Menulis nilai `0` ke setiap file tersebut.
-- Tetap berstatus aktif setelah perintah selesai melalui `RemainAfterExit=yes`.
+- Wait for 2 seconds after the service starts.
+- Found all `pwm1_enable` files in `/sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/`.
+- Writes the value `0` to each such file.
+- Remains active status after command completes via `RemainAfterExit=yes`.
 
-Pada banyak perangkat ASUS, nilai `0` pada `pwm1_enable` mengembalikan kontrol kipas ke mode manual. Perilaku ini bergantung pada dukungan kernel dan perangkat yang digunakan.
+On many ASUS devices, the value `0` in `pwm1_enable` returns fan control to manual mode. This behavior depends on kernel support and the device used.
 
-## Prasyarat
+## Prerequisites
 
-- Linux dengan `systemd`.
-- Kernel yang memuat driver ASUS WMI (`asus-nb-wmi`).
-- File `/sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable` tersedia.
-- Akses `root` atau akun dengan izin `sudo`.
+- Linux with `systemd`.
+- Kernel containing the ASUS WMI driver (`asus-nb-wmi`).
+- File `/sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable` is available.
+- Access `root` or account with `sudo` permissions.
 
-## Instalasi
+## Installation
 
-Salin unit service ke direktori systemd lokal:
+Clone this repository
+
+```bash
+git clone https://github.com/sdqfrmnsyh/ultimate-fan-speed-asus.git
+cd ultimate-fan-speed-asus
+```
+
+Copy the service unit to the local systemd directory:
 
 ```bash
 sudo install -m 644 asus-fan-init.service /etc/systemd/system/asus-fan-init.service
 ```
 
-Muat ulang konfigurasi systemd, lalu aktifkan service agar berjalan setiap boot:
+Reload the systemd configuration, then enable the service to run every boot:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now asus-fan-init.service
 ```
 
-`--now` menjalankan service segera setelah diaktifkan. Jika hanya ingin mengaktifkannya untuk boot berikutnya, gunakan:
+`--now` runs the service as soon as it is enabled. If you only want to enable it for the next boot, use:
 
 ```bash
 sudo systemctl enable asus-fan-init.service
 ```
 
-## Verifikasi
+## Verify
 
-Periksa status service:
+Check service status:
 
 ```bash
 systemctl status asus-fan-init.service
 ```
 
-Service yang berhasil dijalankan akan menampilkan status `active (exited)`. Periksa apakah file kontrol kipas tersedia dan nilainya sudah berubah:
+Services that are successfully running will display the status `active (exited)`. Check if the fan control file is available and the values have changed:
 
 ```bash
-for f in /sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable; do
-    printf '%s: ' "$f"
-    cat "$f"
+for f in /sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable; do 
+printf '%s: ' "$f" 
+cat "$f"
 done
 ```
 
-Log boot service dapat dilihat dengan:
+The boot service log can be viewed by:
 
 ```bash
 journalctl -u asus-fan-init.service
 ```
 
-## Menonaktifkan atau menghapus
+## Disable or delete
 
-Untuk menghentikan service agar tidak dijalankan pada boot berikutnya:
+To stop a service from running on the next boot:
 
 ```bash
 sudo systemctl disable --now asus-fan-init.service
 ```
 
-Untuk menghapus unit yang sudah dipasang:
+To remove an already installed unit:
 
 ```bash
 sudo rm /etc/systemd/system/asus-fan-init.service
@@ -79,29 +86,29 @@ sudo systemctl daemon-reload
 
 ## Troubleshooting
 
-### Service berhasil tetapi kipas tidak berubah
+### Service is successful but the fan does not turn on
 
-Pastikan path kontrol tersedia:
+Make sure the control path is available:
 
 ```bash
 ls /sys/devices/platform/asus-nb-wmi/hwmon/hwmon*/pwm1_enable
 ```
 
-Jika tidak ada file yang cocok, driver ASUS WMI mungkin belum aktif, nama path hwmon berbeda, atau perangkat tidak menyediakan kontrol PWM tersebut.
+If there are no matching files, the ASUS WMI driver may not be active, the hwmon pathname is different, or the device does not provide such PWM control.
 
-### Service gagal saat boot
+### Service failed on boot
 
-Lihat pesan error lengkap:
+See the full error message:
 
 ```bash
 systemctl status asus-fan-init.service --no-pager
 journalctl -u asus-fan-init.service -b --no-pager
 ```
 
-### Peringatan perangkat keras
+### Hardware warning
 
-Kontrol kipas secara manual dapat menyebabkan suhu meningkat jika kurva atau kecepatan kipas tidak diatur dengan benar. Pantau suhu perangkat dan pastikan konfigurasi kipas sesuai dengan model ASUS yang digunakan.
+Manual fan control can cause the temperature to increase if the curve or fan speed is not set correctly. Monitor the device temperature and ensure the fan configuration is appropriate for the ASUS model used.
 
-## Lisensi
+## License
 
-Malas🧢
+Lazy🧢
